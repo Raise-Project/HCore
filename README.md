@@ -1,0 +1,6 @@
+# HCore
+Hexapod Core
+
+More details coming soon...
+# Next Step
+* ...
