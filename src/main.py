@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Oct 25 2020
+Last Modified: Fri Nov 06 2020
 Modified By: Zentetsu
 
 ----
@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ----
 
 HISTORY:
+2020-11-06	Zen	Test for SM and Module
 '''
 
 
@@ -38,9 +39,43 @@ from CorState import StateMachine
 import curses
 import signal
 
+from SharedMemory import Server
+import time
+
+from IRONbark import Module
 
 if __name__ == "__main__":
     state_machine = StateMachine("Hcore")
     state_machine.loadJSON("./data/HCore_SM.json")
 
     state_machine.start()
+
+    #########################################################
+
+    # m = Module(file="./data/HCore_Modules.json")
+
+    # print(m, m["HController"])
+
+    # while True:
+    #     print(m["HController"])
+    #     if not m["HController"].getAvailability()[1]:
+    #         m.restartModule("HController")
+    #     time.sleep(0.1)
+
+    #     try:
+    #         if m["HController"]["Keyboard"]["esc"]:
+    #             break
+    #     except:
+    #         pass
+
+
+    # m.stopModule()
+
+    #########################################################
+
+    # s = Server("test")
+    # while True:
+    #     print(s)
+    #     if not s.getAvailability()[1]:
+    #         s.reconnect()
+    #     time.sleep(0.1)

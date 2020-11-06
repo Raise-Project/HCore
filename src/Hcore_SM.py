@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Oct 25 2020
+Last Modified: Fri Nov 06 2020
 Modified By: Zentetsu
 
 ----
@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ----
 
 HISTORY:
+2020-11-06	Zen	Updating UpdateModules Method
 '''
 
 import IRONbark
@@ -47,7 +48,7 @@ out = False
 global time_launch, modules, init_ended, HCore_Modules
 
 init_ended = False
-time_launch = 0
+time_launch = time.time()
 modules = None
 HCore_Modules = None
 
@@ -80,26 +81,35 @@ def a_Main():
 def a_CheckState():
 	time.sleep(0.1)
 
+def a_stopMain():
+	global screen, HCore_Modules
+
+	screen.clear()
+	HCore_Modules.stopModule()
+
 def t_init():
 	return True
 
 def t_exit():
-	global screen, out
-
-	screen.clear()
-
-	return out
+	return True
 
 def t_endCS():
 	return True
 
 def t_beginCS():
+	global out
+
 	return not out
 
 def t_startMain():
 	global init_ended
 
 	return init_ended
+
+def t_stopMain():
+	global out
+
+	return out
 
 #----------------------------------------------------------------------#
 def initSignal():
@@ -182,12 +192,13 @@ def updateModules(moduless, height, width):
 		modules[name][2][1] = modules[name][3][1] = int((height / 2) - 4)
 
 		if name != "Module name" and name != "HCore Manager":
-			if HCore_Modules[name][0] is None:
+			if not HCore_Modules[name].getAvailability()[1]:
 				modules[name][1] = "OFF "
-			elif  "ON" in HCore_Modules[name][0]["status"]:
-				modules[name][1] = HCore_Modules[name][0]["status"] + " "
+				HCore_Modules.restartModule(name)
+			elif  "ON" in HCore_Modules[name]["status"]:
+				modules[name][1] = HCore_Modules[name]["status"] + " "
 			else:
-				modules[name][1] = HCore_Modules[name][0]["status"]
+				modules[name][1] = HCore_Modules[name]["status"]
 
 def displayModules(modules, screen):
 	step = 0
