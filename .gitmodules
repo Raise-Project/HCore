@@ -1,0 +1,4 @@
+[submodule "modules/HController"]
+	path = modules/HController
+	url = git@github.com:Raise-Project/HController.git
+	branch = python
