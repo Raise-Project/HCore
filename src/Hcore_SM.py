@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Fri Nov 06 2020
+Last Modified: Sun Nov 15 2020
 Modified By: Zentetsu
 
 ----
@@ -85,6 +85,7 @@ def a_stopMain():
 	global screen, HCore_Modules
 
 	screen.clear()
+
 	HCore_Modules.stopModule()
 
 def t_init():
@@ -160,7 +161,7 @@ def getModules(time_launch):
 	modules["Module name"] = ["Module name    ", "Status", [0, 0], [0, 0]]
 	modules["HController"] = ["HController       ", "OFF", [0, 0], [0, 0]]
 	modules["HPhysicsEngine"] = ["HPhysicsEngine    ", "OFF", [0, 0], [0, 0]]
-	# modules["HMovement"] = [" *HMovement       ", "OFF", [0, 0], [0, 0]]
+	modules["HMovement"] = ["HMovement         ", "OFF", [0, 0], [0, 0]]
 	modules["HPathPlaner"] = ["HPathPlaner       ", "OFF", [0, 0], [0, 0]]
 	modules["HBatteryMonitoring"] = ["HBatteryMonitoring", "OFF", [0, 0], [0, 0]]
 	modules["StatusBar"] = ["TIME " + getTime(time_launch) + " | STATUS BAR | LOG: ", "NORMAL", [0, 0], [0, 0], time_launch]
@@ -197,6 +198,7 @@ def updateModules(moduless, height, width):
 				HCore_Modules.restartModule(name)
 			elif  "ON" in HCore_Modules[name]["status"]:
 				modules[name][1] = HCore_Modules[name]["status"] + " "
+				HCore_Modules[name]["time"] = str(getTime(modules["StatusBar"][4]))
 			else:
 				modules[name][1] = HCore_Modules[name]["status"]
 

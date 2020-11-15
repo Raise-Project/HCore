@@ -1,5 +1,5 @@
 {
     "name": "HCore",
     "sender": {},
-    "listener": ["HController", "HPhysicsEngine", "HPathPlaner", "HBatteryMonitoring"]
+    "listener": ["HController", "HPhysicsEngine", "HMovement", "HPathPlaner", "HBatteryMonitoring"]
 }
