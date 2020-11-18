@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Nov 15 2020
+Last Modified: Sun Nov 18 2020
 Modified By: Zentetsu
 
 ----
@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ----
 
 HISTORY:
+2020-11-18	Zen	Updating interaction with others modules
 2020-11-06	Zen	Updating UpdateModules Method
 '''
 
@@ -45,14 +46,18 @@ original_signal = None
 screen = None
 out = False
 
-global time_launch, modules, init_ended, HCore_Modules
+global time_launch, modules, init_ended, HCore_Modules, active, running
 
 init_ended = False
 time_launch = time.time()
 modules = None
 HCore_Modules = None
+active = False
+running = False
+HController_running = False
 
 def a_initUI():
+	# print("a_initUI")
 	global screen, init_ended, modules, time_launch, HCore_Modules
 
 	initSignal()
@@ -68,6 +73,7 @@ def a_initUI():
 	init_ended = True
 
 def a_Main():
+	# print("a_Main")
 	global screen, modules
 
 	screen.clear()
@@ -79,9 +85,28 @@ def a_Main():
 	screen.refresh()
 
 def a_CheckState():
+	# print("a_CheckState")
+	time.sleep(0.1)
+
+def a_stopModulesAction():
+	# print("a_stopModulesAction")
+	global active, running, screen, modules
+
+	screen.clear()
+	height, width = screen.getmaxyx()
+
+	active = False
+	running = False
+
+	updateModules(modules, height, width, True)
+	displayModules(modules, screen)
+
+	screen.refresh()
+
 	time.sleep(0.1)
 
 def a_stopMain():
+	# print("a_stopMain")
 	global screen, HCore_Modules
 
 	screen.clear()
@@ -89,28 +114,46 @@ def a_stopMain():
 	HCore_Modules.stopModule()
 
 def t_init():
+	# print("t_init")
 	return True
 
 def t_exit():
+	# print("t_exit")
 	return True
 
 def t_endCS():
+	# print("t_endCS")
 	return True
 
 def t_beginCS():
+	# print("t_beginCS")
 	global out
 
 	return not out
 
 def t_startMain():
+	# print("t_startMain")
 	global init_ended
 
 	return init_ended
 
-def t_stopMain():
+def t_stopModules():
+	# print("t_stopModules")
 	global out
 
 	return out
+
+def t_waitStopAction():
+	# print("t_waitStopAction")
+	global active, running
+
+	return active or running
+
+def t_stopMain():
+	# print("t_stopMain")
+	global active, running
+
+	return not active and not running
 
 #----------------------------------------------------------------------#
 def initSignal():
@@ -168,8 +211,8 @@ def getModules(time_launch):
 
 	return modules
 
-def updateModules(moduless, height, width):
-	global modules, HCore_Modules
+def updateModules(moduless, height, width, stop=False):
+	global modules, HCore_Modules, active, running, HController_running, out
 
 	for name in modules:
 		if name == "HCore Manager":
@@ -196,9 +239,23 @@ def updateModules(moduless, height, width):
 			if not HCore_Modules[name].getAvailability()[1]:
 				modules[name][1] = "OFF "
 				HCore_Modules.restartModule(name)
+
+				if name == "HController" and HController_running:
+					HController_running = False
+					out = True
 			elif  "ON" in HCore_Modules[name]["status"]:
 				modules[name][1] = HCore_Modules[name]["status"] + " "
-				HCore_Modules[name]["time"] = str(getTime(modules["StatusBar"][4]))
+
+				if not stop or HCore_Modules[name]["Active"]:
+					HCore_Modules[name]["time"] = str(getTime(modules["StatusBar"][4]))
+
+				if HCore_Modules[name]["Active"]:
+					active = True
+
+				running = True
+
+				if name == "HController":
+					HController_running = True
 			else:
 				modules[name][1] = HCore_Modules[name]["status"]
 
