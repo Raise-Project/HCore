@@ -36,6 +36,7 @@ HISTORY:
 '''
 
 import IRONbark
+import logging
 import curses
 import signal
 import time
@@ -60,6 +61,8 @@ def a_initUI():
 	# print("a_initUI")
 	global screen, init_ended, modules, time_launch, HCore_Modules
 
+	logging.debug("Init UI")
+
 	initSignal()
 	screen = curses.initscr()
 	screen.clear()
@@ -76,6 +79,8 @@ def a_Main():
 	# print("a_Main")
 	global screen, modules
 
+	logging.debug("Main")
+
 	screen.clear()
 	height, width = screen.getmaxyx()
 
@@ -86,11 +91,16 @@ def a_Main():
 
 def a_CheckState():
 	# print("a_CheckState")
+
+	logging.debug("CheckState")
+
 	time.sleep(0.1)
 
 def a_stopModulesAction():
 	# print("a_stopModulesAction")
 	global active, running, screen, modules
+
+	logging.debug("stopModulesAction")
 
 	screen.clear()
 	height, width = screen.getmaxyx()
@@ -108,6 +118,8 @@ def a_stopModulesAction():
 def a_stopMain():
 	# print("a_stopMain")
 	global screen, HCore_Modules
+
+	logging.debug("stopMain")
 
 	screen.clear()
 

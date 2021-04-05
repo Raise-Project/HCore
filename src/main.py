@@ -43,12 +43,20 @@ from SharedMemory import Server
 import time
 
 from IRONbark import Module
+import logging
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='Hexapod.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+
+    logging.info('Init HCore SM')
     state_machine = StateMachine("Hcore")
+
+    logging.info('Loading HCore SM')
     state_machine.loadJSON("./data/HCore_SM.json")
 
+    logging.info('Starting SM')
     state_machine.start()
+    logging.info('Stoping SM')
 
     #########################################################
 
