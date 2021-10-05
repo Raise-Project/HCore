@@ -33,39 +33,53 @@
 #
 # HISTORY:
 # 2020-11-07	Zen	Adding startup script
+# 2021-10-05	Zen Adding logging system
 
 
 validate=0
 HController=0
+Verbose=0
+directory="log"
+logFile="/Hexapod.log"
+
+if [ ! -d ~/"$directory" ]; then
+	mkdir ~/$directory
+fi
 
 while [[ $# -gt 0 ]]; do
-    key="$1"
+	key="$1"
 
-    case $key in
-        --HController)
-        HController=1
-        shift # past value
-        ;;
-        --default)
-        shift # past argument
-        ;;
-        *)    # unknown option
-        validate=-1
-        break
-        shift # past argument
-        ;;
-    esac
+	case $key in
+		--HController)
+		HController=1
+		shift # past value
+		;;
+		--Verbose)
+		Verbose=1
+		shift # past value
+		;;
+		--default)
+		shift # past argument
+		;;
+		*)    # unknown option
+		validate=-1
+		break
+		shift # past argument
+		;;
+	esac
 done
 
 if [[ $validate -eq -1 ]]; then
-    echo "ERROR: wrong arguments."
-    exit 1
+	echo "ERROR: wrong arguments."
+	exit 1
 fi
 
 if [[ $HController -eq 1 ]]; then
-    cd ./modules/HController
-    python ./src/main.py &
-    cd ../..
+	cd ./modules/HController
+	python ./src/main.py ~/$directory$logFile &
+	cd ../..
 fi
 
-python ./src/main.py
+python ./src/main.py ~/$directory$logFile
+
+clear

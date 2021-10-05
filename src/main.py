@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Fri Nov 06 2020
+Last Modified: Tue Apr 13 2021
 Modified By: Zentetsu
 
 ----
@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 HISTORY:
 2020-11-06	Zen	Test for SM and Module
+2021-10-05  Zen Adding logging system
 '''
 
 
@@ -44,14 +45,15 @@ import time
 
 from IRONbark import Module
 import logging
+import sys
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='Hexapod.log', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename=sys.argv[1], format='%(asctime)s - HCore - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-    logging.info('Init HCore SM')
+    logging.info('Init SM')
     state_machine = StateMachine("Hcore")
 
-    logging.info('Loading HCore SM')
+    logging.info('Loading SM')
     state_machine.loadJSON("./data/HCore_SM.json")
 
     logging.info('Starting SM')

@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Nov 18 2020
+Last Modified: Thu Apr 29 2021
 Modified By: Zentetsu
 
 ----
@@ -31,8 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ----
 
 HISTORY:
-2020-11-18	Zen	Updating interaction with others modules
-2020-11-06	Zen	Updating UpdateModules Method
+2020-11-18	Zen	Updating interaction with others module
+2020-11-06	Zen	Updating UpdateModules Methods
+2021-10-05	Zen	Some adjustment
 '''
 
 import IRONbark
@@ -41,27 +42,37 @@ import curses
 import signal
 import time
 
-global original_signal, out, screen
-
-original_signal = None
-screen = None
+# Global var for transition
+global init_ended, running, active, out
+init_ended = False
+running = False
+active = False
 out = False
 
-global time_launch, modules, init_ended, HCore_Modules, active, running
+# Global for screen and tracing
+global screen, debug #,original_signal
+# original_signal = None
+screen = None
+debug = False
 
-init_ended = False
+# Global for shared data
+global HController_running, HCore_Modules, time_launch, modules
+HController_running = False
+HCore_Modules = None
 time_launch = time.time()
 modules = None
-HCore_Modules = None
-active = False
-running = False
-HController_running = False
 
+#----------------------------------------------------------------------#
+# ------------------------------ States ------------------------------ #
+#----------------------------------------------------------------------#
 def a_initUI():
 	# print("a_initUI")
-	global screen, init_ended, modules, time_launch, HCore_Modules
+	global init_ended
+	global screen, debug
+	global HCore_Modules, time_launch, modules
 
-	logging.debug("Init UI")
+	if debug:
+		logging.debug("Init UI")
 
 	initSignal()
 	screen = curses.initscr()
@@ -77,9 +88,11 @@ def a_initUI():
 
 def a_Main():
 	# print("a_Main")
-	global screen, modules
+	global screen, debug
+	global modules
 
-	logging.debug("Main")
+	if debug:
+		logging.debug("Main")
 
 	screen.clear()
 	height, width = screen.getmaxyx()
@@ -91,16 +104,21 @@ def a_Main():
 
 def a_CheckState():
 	# print("a_CheckState")
+	global debug
 
-	logging.debug("CheckState")
+	if debug:
+		logging.debug("CheckState")
 
 	time.sleep(0.1)
 
 def a_stopModulesAction():
 	# print("a_stopModulesAction")
-	global active, running, screen, modules
+	global screen, debug
+	global running, active
+	global modules
 
-	logging.debug("stopModulesAction")
+	if debug:
+		logging.debug("stopModulesAction")
 
 	screen.clear()
 	height, width = screen.getmaxyx()
@@ -117,21 +135,29 @@ def a_stopModulesAction():
 
 def a_stopMain():
 	# print("a_stopMain")
-	global screen, HCore_Modules
+	global screen, debug
+	global HCore_Modules
 
-	logging.debug("stopMain")
+	if debug:
+		logging.debug("stopMain")
 
 	screen.clear()
+	screen.refresh()
 
 	HCore_Modules.stopModule()
 
+#----------------------------------------------------------------------#
+# ---------------------------- Transitions --------------------------- #
+#----------------------------------------------------------------------#
 def t_init():
 	# print("t_init")
 	return True
 
-def t_exit():
-	# print("t_exit")
-	return True
+def t_startMain():
+	# print("t_startMain")
+	global init_ended
+
+	return init_ended
 
 def t_endCS():
 	# print("t_endCS")
@@ -143,12 +169,6 @@ def t_beginCS():
 
 	return not out
 
-def t_startMain():
-	# print("t_startMain")
-	global init_ended
-
-	return init_ended
-
 def t_stopModules():
 	# print("t_stopModules")
 	global out
@@ -157,16 +177,22 @@ def t_stopModules():
 
 def t_waitStopAction():
 	# print("t_waitStopAction")
-	global active, running
+	global running, active
 
 	return active or running
 
 def t_stopMain():
 	# print("t_stopMain")
-	global active, running
+	global running, active
 
 	return not active and not running
 
+def t_exit():
+	# print("t_exit")
+	return True
+
+#----------------------------------------------------------------------#
+# --------------------------- Sub functions -------------------------- #
 #----------------------------------------------------------------------#
 def initSignal():
 	original_sigint = signal.getsignal(signal.SIGINT)
@@ -223,8 +249,9 @@ def getModules(time_launch):
 
 	return modules
 
-def updateModules(moduless, height, width, stop=False):
-	global modules, HCore_Modules, active, running, HController_running, out
+def updateModules(modules, height, width, stop=False):
+	global running, active, out
+	global HController_running, HCore_Modules #,modules,
 
 	for name in modules:
 		if name == "HCore Manager":
