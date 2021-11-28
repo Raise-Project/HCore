@@ -2,3 +2,7 @@
 	path = modules/HController
 	url = git@github.com:Raise-Project/HController.git
 	branch = python
+[submodule "modules/HMovement"]
+	path = modules/HMovement
+	url = git@github.com:Raise-Project/HMovement.git
+	branch = python
