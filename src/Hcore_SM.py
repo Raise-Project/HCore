@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sat Nov 27 2021
+Last Modified: Sun Nov 28 2021
 Modified By: Zentetsu
 
 ----
@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 HISTORY:
 2020-11-18	Zen	Updating interaction with others module
 2020-11-06	Zen	Updating UpdateModules Methods
-2021-10-05	Zen	Some adjustment
+2021-10-05	Zen	Some adjustments
 '''
 
 import IRONbark
