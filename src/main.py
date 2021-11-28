@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Tue Apr 13 2021
+Last Modified: Sun Nov 28 2021
 Modified By: Zentetsu
 
 ----
@@ -40,7 +40,7 @@ from CorState import StateMachine
 import curses
 import signal
 
-from SharedMemory import Server
+from SharedMemory import SharedMemory
 import time
 
 from IRONbark import Module
