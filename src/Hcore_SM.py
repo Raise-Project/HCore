@@ -41,6 +41,7 @@ import logging
 import curses
 import signal
 import time
+import os
 
 # Global var for transition
 global init_ended, running, active, out
@@ -74,7 +75,7 @@ def a_initUI():
 
 	if debug:
 		logging.debug("Init UI")
-		# print("Init UI")
+		print("Init UI")
 	else:
 		initSignal()
 		screen = curses.initscr()
@@ -98,7 +99,7 @@ def a_Main():
 
 	if debug:
 		logging.debug("Main")
-		# print("Main")
+		print("Main")
 
 		updateModules(modules, 0, 0)
 	else:
@@ -116,7 +117,7 @@ def a_CheckState():
 
 	if debug:
 		logging.debug("CheckState")
-		# print("CheckState")
+		print("CheckState")
 
 	time.sleep(0.1)
 
@@ -131,7 +132,7 @@ def a_stopModulesAction():
 
 	if debug:
 		logging.debug("stopModulesAction")
-		# print("stopModulesAction")
+		print("stopModulesAction")
 
 		updateModules(modules, 0, 0, True)
 	else:
@@ -152,7 +153,7 @@ def a_stopMain():
 
 	if debug:
 		logging.debug("stopMain")
-		# print("stopMain")
+		print("stopMain")
 	else:
 
 		screen.clear()
@@ -309,7 +310,7 @@ def updateModules(modules, height, width, stop=False):
 
 					if "PS3" in HCore_Modules["HController"]:
 						HController_running = not HCore_Modules["HController"]["PS3"]["ps"]
-					else:
+					elif "Keyboard" in HCore_Modules["HController"]:
 						HController_running = not HCore_Modules["HController"]["Keyboard"]["esc"]
 
 					if not HController_running:
@@ -320,7 +321,7 @@ def updateModules(modules, height, width, stop=False):
 
 				try:
 					if abs(int(HCore_Modules["HCore"]["time"][6:]) - int(HCore_Modules[name]["time"][6:])) >= 10:
-						# print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
+					# 	print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
 						HCore_Modules[name].close()
 				except:
 					print("TODO")

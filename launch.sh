@@ -93,4 +93,4 @@ fi
 
 python ./src/main.py ~/$directory$logFile
 
-# clear
+clear
