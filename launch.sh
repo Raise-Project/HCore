@@ -38,6 +38,7 @@
 
 validate=0
 HController=0
+HMovement=0
 Verbose=0
 directory="log"
 logFile="/Hexapod.log"
@@ -52,6 +53,10 @@ while [[ $# -gt 0 ]]; do
 	case $key in
 		--HController)
 		HController=1
+		shift # past value
+		;;
+		--HMovement)
+		HMovement=1
 		shift # past value
 		;;
 		--Verbose)
@@ -76,10 +81,16 @@ fi
 
 if [[ $HController -eq 1 ]]; then
 	cd ./modules/HController
-	python ./src/main.py ~/$directory$logFile &
+	sleep 1 && python ./src/main.py ~/$directory$logFile &
+	cd ../..
+fi
+
+if [[ $HMovement -eq 1 ]]; then
+	cd ./modules/HMovement
+	sleep 2 && python ./src/main.py ~/$directory$logFile &
 	cd ../..
 fi
 
 python ./src/main.py ~/$directory$logFile
 
-clear
+# clear

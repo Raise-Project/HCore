@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Nov 28 2021
+Last Modified: Tue Dec 07 2021
 Modified By: Zentetsu
 
 ----
@@ -53,7 +53,7 @@ out = False
 global screen, debug #,original_signal
 # original_signal = None
 screen = None
-debug = True
+debug = False
 
 # Global for shared data
 global HController_running, HCore_Modules, time_launch, modules
@@ -67,6 +67,7 @@ modules = None
 #----------------------------------------------------------------------#
 def a_initUI():
 	# print("a_initUI")
+	global running
 	global init_ended
 	global screen, debug
 	global HCore_Modules, time_launch, modules
@@ -74,18 +75,20 @@ def a_initUI():
 	if debug:
 		logging.debug("Init UI")
 		# print("Init UI")
+	else:
+		initSignal()
+		screen = curses.initscr()
+		screen.clear()
+		screen.refresh()
 
-	initSignal()
-	screen = curses.initscr()
-	screen.clear()
-	screen.refresh()
+		initColors()
 
-	initColors()
 	modules = getModules(time_launch)
 
 	HCore_Modules = IRONbark.Module(file="./data/HCore_Modules.json")
 	HCore_Modules["HCore"]["Active"] = True
 
+	running = True
 	init_ended = True
 
 def a_Main():
@@ -97,13 +100,15 @@ def a_Main():
 		logging.debug("Main")
 		# print("Main")
 
-	screen.clear()
-	height, width = screen.getmaxyx()
+		updateModules(modules, 0, 0)
+	else:
+		screen.clear()
+		height, width = screen.getmaxyx()
 
-	updateModules(modules, height, width)
-	displayModules(modules, screen)
+		updateModules(modules, height, width)
+		displayModules(modules, screen)
 
-	screen.refresh()
+		screen.refresh()
 
 def a_CheckState():
 	# print("a_CheckState")
@@ -121,20 +126,22 @@ def a_stopModulesAction():
 	global running, active
 	global modules
 
+	active = False
+	running = False
+
 	if debug:
 		logging.debug("stopModulesAction")
 		# print("stopModulesAction")
 
-	screen.clear()
-	height, width = screen.getmaxyx()
+		updateModules(modules, 0, 0, True)
+	else:
+		screen.clear()
+		height, width = screen.getmaxyx()
 
-	active = False
-	running = False
+		updateModules(modules, height, width, True)
+		displayModules(modules, screen)
 
-	updateModules(modules, height, width, True)
-	displayModules(modules, screen)
-
-	screen.refresh()
+		screen.refresh()
 
 	time.sleep(0.1)
 
@@ -146,9 +153,10 @@ def a_stopMain():
 	if debug:
 		logging.debug("stopMain")
 		# print("stopMain")
+	else:
 
-	screen.clear()
-	screen.refresh()
+		screen.clear()
+		screen.refresh()
 
 	HCore_Modules.stopModule()
 
@@ -256,6 +264,7 @@ def getModules(time_launch):
 	return modules
 
 def updateModules(modules, height, width, stop=False):
+	global debug
 	global running, active, out
 	global HController_running, HCore_Modules #,modules,
 
@@ -266,7 +275,8 @@ def updateModules(modules, height, width, stop=False):
 			continue
 
 		if name == "StatusBar":
-			modules[name][0] = "TIME " + getTime(modules[name][4]) + " | STATUS BAR | LOG: "
+			time = getTime(modules[name][4])
+			modules[name][0] = "TIME " + time + " | STATUS BAR | LOG: "
 			modules[name][1] = "NORMAL"
 			modules[name][2][0] = 0
 			modules[name][2][1] = modules[name][3][1] = height - 1
@@ -274,29 +284,46 @@ def updateModules(modules, height, width, stop=False):
 			modules[name][0] = " " * int((width - len(modules[name][0] + modules[name][1]) - 1)/2) + "TIME " + getTime(modules[name][4]) + " | STATUS BAR | LOG: "
 			modules[name][1] = "NORMAL" + " " * int((width - len(modules[name][0] + modules[name][1]) - 1))
 			modules[name][3][0] = len(modules[name][0])
+
+			HCore_Modules["HCore"]["time"] = time
 			continue
 
 		modules[name][2][0] = int((width/2) - ((len(modules[name][0]) + 13) / 2))
 		modules[name][3][0] = modules[name][2][0] + len(modules[name][0]) + 10
 		modules[name][2][1] = modules[name][3][1] = int((height / 2) - 4)
 
-		if name != "Module name" and name != "HCore Manager":# and name != "HPathPlaner" and name != "HBatteryMonitoring" and name != "HPhysicsEngine":
-			# print("here", name)
+		if name != "Module name" and name != "HCore Manager" and name != "HPathPlaner" and name != "HBatteryMonitoring" and name != "HPhysicsEngine":
+			if debug:
+				logging.debug("Module: " + name)
+				print("Module: ", name)
+
 			if not HCore_Modules[name].getAvailability():
 				modules[name][1] = "OFF "
 				# HCore_Modules.restartModule(name)
 
-				if name == "HController" and HController_running:
-					HCore_Modules["HCore"]["Active"] = False
-					HController_running = False
-					out = True
 			else:
 				modules[name][1] = "ON "
 				running = True
 
 				if name == "HController":
-					print("HController")
-					HController_running = True
+
+					if "PS3" in HCore_Modules["HController"]:
+						HController_running = not HCore_Modules["HController"]["PS3"]["ps"]
+					else:
+						HController_running = not HCore_Modules["HController"]["Keyboard"]["esc"]
+
+					if not HController_running:
+						HCore_Modules["HCore"]["Active"] = False
+						out = True
+
+					logging.debug("HController_running" + str(HController_running))
+
+				try:
+					if abs(int(HCore_Modules["HCore"]["time"][6:]) - int(HCore_Modules[name]["time"][6:])) >= 10:
+						# print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
+						HCore_Modules[name].close()
+				except:
+					print("TODO")
 
 			# elif "ON" in HCore_Modules[name]["status"]:
 			# 	# modules[name][1] = HCore_Modules[name]["status"] + " "
