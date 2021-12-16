@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Tue Dec 07 2021
+Last Modified: Thu Dec 16 2021
 Modified By: Zentetsu
 
 ----
@@ -62,6 +62,7 @@ HController_running = False
 HCore_Modules = None
 time_launch = time.time()
 modules = None
+crashed = {}
 
 #----------------------------------------------------------------------#
 # ------------------------------ States ------------------------------ #
@@ -267,7 +268,7 @@ def getModules(time_launch):
 def updateModules(modules, height, width, stop=False):
 	global debug
 	global running, active, out
-	global HController_running, HCore_Modules #,modules,
+	global HController_running, HCore_Modules, crashed #,modules,
 
 	for name in modules:
 		if name == "HCore Manager":
@@ -300,7 +301,10 @@ def updateModules(modules, height, width, stop=False):
 
 			if not HCore_Modules[name].getAvailability():
 				modules[name][1] = "OFF "
-				# HCore_Modules.restartModule(name)
+
+				if name in crashed and crashed[name]:
+					os.system("./start.sh " + name + " 1")
+					crashed[name] = False
 
 			else:
 				modules[name][1] = "ON "
@@ -320,9 +324,17 @@ def updateModules(modules, height, width, stop=False):
 					logging.debug("HController_running" + str(HController_running))
 
 				try:
-					if abs(int(HCore_Modules["HCore"]["time"][6:]) - int(HCore_Modules[name]["time"][6:])) >= 10:
-					# 	print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
-						HCore_Modules[name].close()
+					if int(HCore_Modules["HCore"]["time"][6:]) == int(HCore_Modules[name]["time"][6:]):
+						modules[name][1] = "ON "
+					else:
+						if abs(int(HCore_Modules["HCore"]["time"][6:]) - int(HCore_Modules[name]["time"][6:])) < 10:
+							modules[name][1] = "WAIT"
+						elif name not in crashed:
+							# 	print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
+							HCore_Modules[name].close()
+							crashed[name] = True
+						elif name in crashed:
+							del crashed[name]
 				except:
 					print("TODO")
 

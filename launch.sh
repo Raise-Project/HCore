@@ -80,15 +80,11 @@ if [[ $validate -eq -1 ]]; then
 fi
 
 if [[ $HController -eq 1 ]]; then
-	cd ./modules/HController
-	sleep 1 && python ./src/main.py ~/$directory$logFile &
-	cd ../..
+	./start.sh "HController" 1
 fi
 
 if [[ $HMovement -eq 1 ]]; then
-	cd ./modules/HMovement
-	sleep 2 && python ./src/main.py ~/$directory$logFile &
-	cd ../..
+	./start.sh "HMovement" 2
 fi
 
 python ./src/main.py ~/$directory$logFile
