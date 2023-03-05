@@ -35,7 +35,9 @@ HISTORY:
 2020-11-06	Zen	Updating UpdateModules Methods
 2021-10-05	Zen	Some adjustments
 2023-03-05	Zen	Adding version and updating screen display
+2023-03-05	Zen	Updating StatusBar
 '''
+
 
 import IRONbark
 import logging
@@ -52,10 +54,11 @@ active = False
 out = False
 
 # Global for screen and tracing
-global screen, debug #,original_signal
+global screen, debug, version #,original_signal
 # original_signal = None
 screen = None
-debug = False
+debug = 0
+version = "v0.0.0"
 
 # Global for shared data
 global HController_running, HCore_Modules, time_launch, modules
@@ -64,19 +67,20 @@ HCore_Modules = None
 time_launch = time.time()
 modules = None
 crashed = {}
-version = "v0.0.0"
 
 #----------------------------------------------------------------------#
 # ------------------------------ States ------------------------------ #
 #----------------------------------------------------------------------#
 def a_initUI():
-	# print("a_initUI")
 	global running
 	global init_ended
 	global screen, debug
 	global HCore_Modules, time_launch, modules
 
-	if debug:
+	HCore_Modules = IRONbark.Module(file="./data/HCore_Modules.json")
+	debug = HCore_Modules["HCore"]["debug"]
+
+	if debug == 2:
 		logging.debug("Init UI")
 		print("Init UI")
 	else:
@@ -89,18 +93,16 @@ def a_initUI():
 
 	modules = getModules(time_launch)
 
-	HCore_Modules = IRONbark.Module(file="./data/HCore_Modules.json")
 	HCore_Modules["HCore"]["Active"] = True
 
 	running = True
 	init_ended = True
 
 def a_Main():
-	# print("a_Main")
 	global screen, debug
 	global modules
 
-	if debug:
+	if debug == 2:
 		logging.debug("Main")
 		print("Main")
 
@@ -115,17 +117,15 @@ def a_Main():
 		screen.refresh()
 
 def a_CheckState():
-	# print("a_CheckState")
 	global debug
 
-	if debug:
+	if debug == 2:
 		logging.debug("CheckState")
 		print("CheckState")
 
 	time.sleep(0.1)
 
 def a_stopModulesAction():
-	# print("a_stopModulesAction")
 	global screen, debug
 	global running, active
 	global modules
@@ -133,7 +133,7 @@ def a_stopModulesAction():
 	active = False
 	running = False
 
-	if debug:
+	if debug == 2:
 		logging.debug("stopModulesAction")
 		print("stopModulesAction")
 
@@ -150,11 +150,10 @@ def a_stopModulesAction():
 	time.sleep(0.1)
 
 def a_stopMain():
-	# print("a_stopMain")
 	global screen, debug
 	global HCore_Modules
 
-	if debug:
+	if debug == 2:
 		logging.debug("stopMain")
 		print("stopMain")
 	else:
@@ -255,18 +254,24 @@ def getTime(start):
 
 def getModules(time_launch):
 	global l_str, l_status, l_version
+	global debug
+
 	modules = {}
 
-	modules["HCore Manager"] 		= {"str": ["HCore Manager", [0, 0]], "Status": ["", [0, 0]], "version": ["", [0, 0]]}
-	modules["Module name"] 			= {"str": ["    Module Name", [0, 0]], "Status": ["Status", [0, 0]], "version": ["Version", [0, 0]]}
-	modules["HController"] 			= {"str": ["HController", [0, 0]], "Status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
-	modules["HPhysicsEngine"] 		= {"str": ["HPhysicsEngine", [0, 0]], "Status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
-	modules["HMovement"] 			= {"str": ["HMovement", [0, 0]], "Status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
-	modules["HPathPlaner"] 			= {"str": ["HPathPlaner", [0, 0]], "Status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
-	modules["HBatteryMonitoring"] 	= {"str": ["HBatteryMonitoring", [0, 0]], "Status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
-	modules["StatusBar"] 			= {"str": ["TIME " + getTime(time_launch) + " | STATUS BAR | LOG: ", [0, 0]], "Status": ["NORMAL", [0, 0]], "time": time_launch}
+	status = "NORMAL"
+	if debug == 1:
+		status = "DEBUG"
 
-	l_str, l_status, l_version = len("HBatteryMonitoring")+5, len("Status")+5, len("version")
+	modules["HCore Manager"] 		= {"str": ["HCore Manager", [0, 0]], "status": ["", [0, 0]], "version": ["", [0, 0]]}
+	modules["Module name"] 			= {"str": ["    Module Name", [0, 0]], "status": ["Status", [0, 0]], "version": ["Version", [0, 0]]}
+	modules["HController"] 			= {"str": ["HController", [0, 0]], "status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
+	modules["HPhysicsEngine"] 		= {"str": ["HPhysicsEngine", [0, 0]], "status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
+	modules["HMovement"] 			= {"str": ["HMovement", [0, 0]], "status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
+	modules["HPathPlaner"] 			= {"str": ["HPathPlaner", [0, 0]], "status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
+	modules["HBatteryMonitoring"] 	= {"str": ["HBatteryMonitoring", [0, 0]], "status": ["OFF", [0, 0]], "version": ["-.-.-", [0, 0]]}
+	modules["StatusBar"] 			= {"time": time_launch, "status": status, "str": ["", [0, 0]]}
+
+	l_str, l_status, l_version = len("HBatteryMonitoring")+5, len("status")+5, len("version")
 
 	return modules
 
@@ -285,15 +290,14 @@ def updateModules(modules, height, width, stop=False):
 				print("Module: ", name)
 
 			if not HCore_Modules[name].getAvailability():
-				modules[name]["Status"][0] = "OFF "
+				modules[name]["status"][0] = "OFF "
 				modules[name]["version"][0] = "-.-.-"
 
 				if name in crashed and crashed[name]:
 					os.system("./start.sh " + name + " 1")
 					crashed[name] = False
-
 			else:
-				modules[name]["Status"][0] = "ON "
+				modules[name]["status"][0] = "ON "
 				logging.debug(name)
 				logging.debug(HCore_Modules[name])
 
@@ -314,16 +318,13 @@ def updateModules(modules, height, width, stop=False):
 						HCore_Modules["HCore"]["Active"] = False
 						out = True
 
-					# logging.debug("HController_running " + str(HController_running))
-
 				try:
 					if int(HCore_Modules["HCore"]["time"][6:]) == int(HCore_Modules[name]["time"][6:]):
-						modules[name]["Status"][0] = "ON "
+						modules[name]["status"][0] = "ON "
 					else:
 						if abs(int(HCore_Modules["HCore"]["time"][6:]) - int(HCore_Modules[name]["time"][6:])) < 10:
-							modules[name]["Status"][0] = "WAIT"
+							modules[name]["status"][0] = "WAIT"
 						elif name not in crashed:
-							# 	print(HCore_Modules["HCore"]["time"], HCore_Modules["HMovement"]["time"])
 							HCore_Modules[name].close()
 							crashed[name] = True
 						elif name in crashed:
@@ -358,29 +359,23 @@ def UpdateDisplay(name, width, height):
 			modules[name]["version"][0] = version
 
 		modules[name]["str"][1][0] = int((width / 2) - (len(modules[name]["str"][0]) + len(modules[name]["version"][0]) + 5) / 2)
-		modules[name]["Status"][1][0] = modules[name]["str"][1][0] + len(modules[name]["str"][0])
-		modules[name]["version"][1][0] = modules[name]["Status"][1][0] + len(modules[name]["Status"][0]) + 5
-		modules[name]["str"][1][1] = modules[name]["Status"][1][1] = modules[name]["version"][1][1] = int((height / 2) - 4)
+		modules[name]["status"][1][0] = modules[name]["str"][1][0] + len(modules[name]["str"][0])
+		modules[name]["version"][1][0] = modules[name]["status"][1][0] + len(modules[name]["status"][0]) + 5
+		modules[name]["str"][1][1] = modules[name]["status"][1][1] = modules[name]["version"][1][1] = int((height / 2) - 4)
 		return
 
 	if name == "StatusBar":
 		time = getTime(modules[name]["time"])
-		modules[name]["str"][0] = "TIME " + time + " | STATUS BAR | LOG: "
-		modules[name]["Status"][0] = "NORMAL"
+		str_status_bar = "TIME: " + str(time) + " | STATUS BAR | LOG: " + modules[name]["status"]
+		modules[name]["str"][0] = " " * int((width - len(str_status_bar) - 1)/2) + str_status_bar + " " * int((width - len(str_status_bar) - 1)/2)
 		modules[name]["str"][1][0] = 0
-		modules[name]["str"][1][1] = modules[name]["Status"][1][1] = height - 1
-
-		modules[name]["str"][0] = " " * int((width - len(modules[name]["str"][0] + modules[name]["Status"][0]) - 1)/2) + "TIME " + getTime(modules[name]["time"]) + " | STATUS BAR | LOG: "
-		modules[name]["Status"][0] = "NORMAL" + " " * int((width - len(modules[name]["str"][0] + modules[name]["Status"][0]) - 1))
-		modules[name]["Status"][1][0] = len(modules[name]["str"][0])
-
-		HCore_Modules["HCore"]["time"] = time
+		modules[name]["str"][1][1] = height - 1
 		return
 
 	modules[name]["str"][1][0] = int((width/2) - (l_str + l_status + l_version) / 2)
-	modules[name]["Status"][1][0] = modules[name]["str"][1][0] + l_str + int(len("Status") - len(modules[name]["Status"][0]) / 2)
-	modules[name]["version"][1][0] = modules[name]["Status"][1][0] + l_status - int(len("Status") - len(modules[name]["Status"][0]) / 2) + int(len("Version") - len(modules[name]["version"][0]) / 2)
-	modules[name]["str"][1][1] = modules[name]["Status"][1][1] = modules[name]["version"][1][1] = int((height / 2) - 4)
+	modules[name]["status"][1][0] = modules[name]["str"][1][0] + l_str + int(len("status") - len(modules[name]["status"][0]) / 2)
+	modules[name]["version"][1][0] = modules[name]["status"][1][0] + l_status - int(len("status") - len(modules[name]["status"][0]) / 2) + int(len("Version") - len(modules[name]["version"][0]) / 2)
+	modules[name]["str"][1][1] = modules[name]["status"][1][1] = modules[name]["version"][1][1] = int((height / 2) - 4)
 
 
 def displayModules(modules, screen):
@@ -388,11 +383,11 @@ def displayModules(modules, screen):
 	color = 1
 
 	for name in modules:
-		if "OFF" in modules[name]["Status"][0]:
+		if "OFF" in modules[name]["status"][0]:
 			color = 1
-		elif "ON" in modules[name]["Status"][0]:
+		elif "ON" in modules[name]["status"][0]:
 			color = 2
-		elif "WAIT" in modules[name]["Status"][0]:
+		elif "WAIT" in modules[name]["status"][0]:
 			color = 3
 		else:
 			color = 0
@@ -401,17 +396,13 @@ def displayModules(modules, screen):
 			step = 0
 			screen.attron(curses.color_pair(4))
 			screen.addstr(modules[name]["str"][1][1], modules[name]["str"][1][0], modules[name]["str"][0])
-			screen.addstr(modules[name]["Status"][1][1], modules[name]["Status"][1][0], modules[name]["Status"][0])
 			screen.attroff(curses.color_pair(4))
-			continue
-
-		screen.addstr(modules[name]["str"][1][1] + step, modules[name]["str"][1][0], modules[name]["str"][0])
-
-		screen.attron(curses.color_pair(color))
-		screen.addstr(modules[name]["Status"][1][1] + step, modules[name]["Status"][1][0], modules[name]["Status"][0])
-		screen.attroff(curses.color_pair(color))
-
-		screen.addstr(modules[name]["version"][1][1] + step, modules[name]["version"][1][0], modules[name]["version"][0])
+		else:
+			screen.addstr(modules[name]["str"][1][1] + step, modules[name]["str"][1][0], modules[name]["str"][0])
+			screen.attron(curses.color_pair(color))
+			screen.addstr(modules[name]["status"][1][1] + step, modules[name]["status"][1][0], modules[name]["status"][0])
+			screen.attroff(curses.color_pair(color))
+			screen.addstr(modules[name]["version"][1][1] + step, modules[name]["version"][1][0], modules[name]["version"][0])
 
 		if name == "HCore Manager":
 			step += 2
