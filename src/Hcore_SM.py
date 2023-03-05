@@ -298,8 +298,6 @@ def updateModules(modules, height, width, stop=False):
 					crashed[name] = False
 			else:
 				modules[name]["status"][0] = "ON "
-				logging.debug(name)
-				logging.debug(HCore_Modules[name])
 
 				if HCore_Modules[name]["version"] is None:
 					modules[name]["version"][0] = "-.-.-"
