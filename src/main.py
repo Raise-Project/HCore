@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Thu Dec 16 2021
+Last Modified: Sun Mar 05 2023
 Modified By: Zentetsu
 
 ----
@@ -49,47 +49,47 @@ import sys
 import os
 
 if __name__ == "__main__":
-    logging.basicConfig(filename=sys.argv[1], format='%(asctime)s - HCore - %(levelname)s - %(message)s', level=logging.DEBUG)
+	logging.basicConfig(filename=sys.argv[1], format='%(asctime)s - HCore - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-    f = open(os.devnull, 'w')
-    sys.stdout = f
+	f = open(os.devnull, 'w')
+	sys.stdout = f
 
-    logging.info('Init SM')
-    state_machine = StateMachine("Hcore")
+	logging.info('Init SM')
+	state_machine = StateMachine("Hcore")
 
-    logging.info('Loading SM')
-    state_machine.loadJSON("./data/HCore_SM.json")
+	logging.info('Loading SM')
+	state_machine.loadJSON("./data/HCore_SM.json")
 
-    logging.info('Starting SM')
-    state_machine.start()
-    logging.info('Stoping SM')
+	logging.info('Starting SM')
+	state_machine.start()
+	logging.info('Stoping SM')
 
-    #########################################################
+	#########################################################
 
-    # m = Module(file="./data/HCore_Modules.json")
+	# m = Module(file="./data/HCore_Modules.json")
 
-    # print(m, m["HController"])
+	# print(m, m["HController"])
 
-    # while True:
-    #     print(m["HController"])
-    #     if not m["HController"].getAvailability()[1]:
-    #         m.restartModule("HController")
-    #     time.sleep(0.1)
+	# while True:
+	#     print(m["HController"])
+	#     if not m["HController"].getAvailability()[1]:
+	#         m.restartModule("HController")
+	#     time.sleep(0.1)
 
-    #     try:
-    #         if m["HController"]["Keyboard"]["esc"]:
-    #             break
-    #     except:
-    #         pass
+	#     try:
+	#         if m["HController"]["Keyboard"]["esc"]:
+	#             break
+	#     except:
+	#         pass
 
 
-    # m.stopModule()
+	# m.stopModule()
 
-    #########################################################
+	#########################################################
 
-    # s = Server("test")
-    # while True:
-    #     print(s)
-    #     if not s.getAvailability()[1]:
-    #         s.reconnect()
-    #     time.sleep(0.1)
+	# s = Server("test")
+	# while True:
+	#     print(s)
+	#     if not s.getAvailability()[1]:
+	#         s.reconnect()
+	#     time.sleep(0.1)

@@ -3,7 +3,8 @@
     "sender": {
         "HCore": {
             "Active": false,
-            "time": "00:00:00"
+            "time": "00:00:00",
+            "version": "0.1.0"
         }
     },
     "listener": ["HController", "HPhysicsEngine", "HMovement", "HPathPlaner", "HBatteryMonitoring"]

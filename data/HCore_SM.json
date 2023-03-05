@@ -1,6 +1,6 @@
 {
     "SM": {
-        "path": "./src/Hcore_SM.py",
+        "path": "./src/HCore_SM.py",
         "StateMachine": {
             "Variable": {},
             "State": {
