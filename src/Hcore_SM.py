@@ -36,6 +36,7 @@ HISTORY:
 2021-10-05	Zen	Some adjustments
 2023-03-05	Zen	Adding version and updating screen display
 2023-03-05	Zen	Updating StatusBar
+2023-03-06	Zen	Updating stopping modules behovior + debug options
 '''
 
 
