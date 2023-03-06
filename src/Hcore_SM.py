@@ -5,7 +5,7 @@ Author: Zentetsu
 
 ----
 
-Last Modified: Sun Mar 05 2023
+Last Modified: Mon Mar 06 2023
 Modified By: Zentetsu
 
 ----
@@ -80,6 +80,8 @@ def a_initUI():
 	HCore_Modules = IRONbark.Module(file="./data/HCore_Modules.json")
 	debug = HCore_Modules["HCore"]["debug"]
 
+	if debug == 1:
+		logging.debug("Init UI")
 	if debug == 2:
 		logging.debug("Init UI")
 		print("Init UI")
@@ -102,6 +104,8 @@ def a_Main():
 	global screen, debug
 	global modules
 
+	if debug == 1:
+		logging.debug("Main")
 	if debug == 2:
 		logging.debug("Main")
 		print("Main")
@@ -119,6 +123,8 @@ def a_Main():
 def a_CheckState():
 	global debug
 
+	if debug == 1:
+		logging.debug("CheckState")
 	if debug == 2:
 		logging.debug("CheckState")
 		print("CheckState")
@@ -128,18 +134,21 @@ def a_CheckState():
 def a_stopModulesAction():
 	global screen, debug
 	global running, active
-	global modules
+	global modules, out
 
-	active = False
-	running = False
+	if [True if "ON" in m["status"][0] else False for m in modules.values()].count(True) == 0:
+		active = False
+		running = False
 
+	if debug == 1:
+		logging.debug("stopModulesAction")
 	if debug == 2:
 		logging.debug("stopModulesAction")
 		print("stopModulesAction")
 
 		updateModules(modules, 0, 0, True)
 	else:
-		screen.clear()
+		# screen.clear()
 		height, width = screen.getmaxyx()
 
 		updateModules(modules, height, width, True)
@@ -153,11 +162,12 @@ def a_stopMain():
 	global screen, debug
 	global HCore_Modules
 
+	if debug == 1:
+		logging.debug("stopMain")
 	if debug == 2:
 		logging.debug("stopMain")
 		print("stopMain")
 	else:
-
 		screen.clear()
 		screen.refresh()
 
@@ -365,7 +375,7 @@ def UpdateDisplay(name, width, height):
 	if name == "StatusBar":
 		time = getTime(modules[name]["time"])
 		str_status_bar = "TIME: " + str(time) + " | STATUS BAR | LOG: " + modules[name]["status"]
-		modules[name]["str"][0] = " " * int((width - len(str_status_bar) - 1)/2) + str_status_bar + " " * int((width - len(str_status_bar) - 1)/2)
+		modules[name]["str"][0] = " " * int((width - len(str_status_bar))/2) + str_status_bar + " " * int((width - len(str_status_bar) - 1)/2)
 		modules[name]["str"][1][0] = 0
 		modules[name]["str"][1][1] = height - 1
 		return
@@ -374,7 +384,6 @@ def UpdateDisplay(name, width, height):
 	modules[name]["status"][1][0] = modules[name]["str"][1][0] + l_str + int(len("status") - len(modules[name]["status"][0]) / 2)
 	modules[name]["version"][1][0] = modules[name]["status"][1][0] + l_status - int(len("status") - len(modules[name]["status"][0]) / 2) + int(len("Version") - len(modules[name]["version"][0]) / 2)
 	modules[name]["str"][1][1] = modules[name]["status"][1][1] = modules[name]["version"][1][1] = int((height / 2) - 4)
-
 
 def displayModules(modules, screen):
 	step = 0
